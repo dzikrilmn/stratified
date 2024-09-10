@@ -5,7 +5,8 @@
    step 5 : mengisi views,py dengan data yang diinginkan sesuai model yang sudah dibuat. Kemudian membuat template html untuk isi konten app.
    step 6 : menambahkan  path('', show_product, name='show_product') di urls.py app main untuk mapping fungsi yang sudah dibuat di views.py
    step 7 : melakukan makemigration, migrate, kemudian git add, commit, push pws main:master
-2. Client Request
+2.
+Client Request
       |
       v
 +-----------------+
@@ -30,7 +31,7 @@
       v
 Client Response
 
-3.
+4.
   - Mengelola versi kode: Melacak setiap perubahan kode, agar masih bisa kembali ke versi sebelumnya.
   - Kolaborasi tim: Memungkinkan banyak pengembang bekerja secara bersamaan tanpa bentrok.
   - Branching: Bekerja pada fitur terpisah tanpa mempengaruhi kode utama.
@@ -40,10 +41,10 @@ Client Response
   - Distribusi: Memungkinkan pekerjaan offline dengan salinan lengkap proyek.
   - Backup otomatis: Setiap salinan berfungsi sebagai cadangan proyek.
 
-4.
+5.
   - Menyediakan banyak fitur bawaan (seperti otentikasi, routing, ORM) yang mengurangi kebutuhan untuk memasang banyak library eksternal sehingga bisa langsung fokus pada logika
     aplikasi tanpa khawatir soal hal-hal teknis dasar.
   - Menerapkan arsitektur Model-View-Template (MVT) sehingga memudahkan pemahaman alur aplikasi dan pengembangan software yang terorganisir.
 
-5. Model pada Django disebut ORM (Object-Relational Mapping) karena menghubungkan objek Python dengan tabel di database. Dengan ORM, developer bisa bekerja dengan data di database seperti bekerja dengan objek Python, tanpa perlu SQL sebagai database.
+6. Model pada Django disebut ORM (Object-Relational Mapping) karena menghubungkan objek Python dengan tabel di database. Dengan ORM, developer bisa bekerja dengan data di database seperti bekerja dengan objek Python, tanpa perlu SQL sebagai database.
     
