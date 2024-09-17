@@ -1,13 +1,46 @@
+{% extends 'base.html' %}
+{% block content %}
 <html lang="en">
 <head>
     <h1>Stratified</h1>
     <p>A PBP project by {{uname}} - {{uclass}}</p>
 </head>
-<body>
+<!-- <body>
     <h2>Product</h2>
     <h3>{{name}}</h3>
-    <!-- <img src={{image}} alt="image" width="300" height="300"> -->
+    <img src={{image}} alt="image" width="300" height="300">
     <h3>Rp.{{price}},00</h3>
     <p>{{description}}</p>
-</body>
+</body> -->
+
+{% if not product_entry %}
+<p>No product has been added.</p>
+{% else %}
+<table>
+    <tr>
+      <th>Item Name</th>
+      <th>Price</th>
+      <th>Description</th>
+    </tr>
+  
+    {% comment %} Berikut cara memperlihatkan data product di bawah baris ini 
+    {% endcomment %} 
+    {% for product in product_entry %}
+    <tr>
+      <td>{{product.name}}</td>
+      <td>{{product.price}}</td>
+      <td>{{product.description}}</td>
+    </tr>
+    {% endfor %}
+  </table>
+  {% endif %}
+  
+  <br />
+  
+  <a href="{% url 'main:create_product_entry' %}">
+    <button>Add New Product</button>
+  </a>
+
+
 </html>
+{% endblock content %}
