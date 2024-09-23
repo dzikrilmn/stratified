@@ -3,7 +3,7 @@
 <html lang="en">
 <head>
     <h1>Stratified</h1>
-    <p>A PBP project by {{uname}} - {{uclass}}</p>
+    <p>A PBP project by {{name}} - {{class}}</p>
 </head>
 <!-- <body>
     <h2>Product</h2>
@@ -12,6 +12,8 @@
     <h3>Rp.{{price}},00</h3>
     <p>{{description}}</p>
 </body> -->
+
+<h3>Welcome, {{uname}}</h3>
 
 {% if not product_entry %}
 <p>No product has been added.</p>
@@ -41,6 +43,11 @@
     <button>Add New Product</button>
   </a>
 
+  <a href="{% url 'main:logout' %}">
+    <button>Logout</button>
+  </a>
+
+<h5>Last login session: {{ last_login }}</h5>
 
 </html>
 {% endblock content %}
