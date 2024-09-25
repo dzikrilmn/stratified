@@ -53,16 +53,18 @@ def create_product_entry(request):
 
 def show_xml(request):
     data = Product.objects.all()
+    return HttpResponse(serializers.serialize("xml", data), content_type="application/xml")
 
-def show_xml(request):
-    data = Product.objects.all()
+def show_xml_by_id(request, id):
+    data = Product.objects.filter(pk=id)
     return HttpResponse(serializers.serialize("xml", data), content_type="application/xml")
 
 def show_json(request):
     data = Product.objects.all()
+    return HttpResponse(serializers.serialize("json", data), content_type="application/json")
 
-def show_json(request):
-    data = Product.objects.all()
+def show_json_by_id(request, id):
+    data = Product.objects.filter(pk=id)
     return HttpResponse(serializers.serialize("json", data), content_type="application/json")
 
 def register(request):
