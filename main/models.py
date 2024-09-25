@@ -11,6 +11,3 @@ class Product(models.Model):
     def __str__(self):
         return self.name
         
-class Person(models.Model):
-    nama = models.CharField(max_length=255)
-    age = models.DecimalField(max_digits=3)    
