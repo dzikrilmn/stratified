@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Product</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.0.1/dist/tailwind.min.css" rel="stylesheet">
+</head>
+
+<body class="bg-black text-white">
+
+      <!-- Sticky Navigation Bar -->
+<nav class="bg-transparent py-4 fixed top-0 w-full z-50 shadow-lg">
+    <div class="container mx-auto flex justify-between items-center">
+        <!-- Logo or Brand -->
+        <div class="text-white text-lg">
+            <a href="" class="hover:text-pink-500 font-bold">STRATIFIED</a>
+        </div>
+        
+        <!-- Desktop Menu -->
+        <div class="hidden md:flex space-x-6 text-white">
+            <a href="{% url 'main:show_main' %}" class="hover:text-pink-500">Home</a>
+            <a href="{% url 'main:create_product_entry' %}" class="hover:text-pink-500">Add New Product</a>
+            <a href="{% url 'main:basket' %}" class="hover:text-pink-500">Go to Basket</a>
+            <a href="{% url 'main:logout' %}" class="hover:text-pink-500">Logout</a>
+        </div>
+  
+        <!-- Mobile Menu Button -->
+        <div class="md:hidden">
+            <button id="menu-btn" class="focus:outline-none">
+                <!-- Hamburger Icon -->
+                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path>
+                </svg>
+            </button>
+        </div>
+    </div>
+  
+    <!-- Mobile Menu (Hidden by default) -->
+    <div id="mobile-menu" class="hidden md:hidden bg-transparent ">
+        <a href="{% url 'main:show_main' %}" class="block px-4 py-2 text-white hover:text-pink-500">Home</a>
+        <a href="{% url 'main:create_product_entry' %}" class="block px-4 py-2 text-white hover:text-pink-500">Add New Product</a>
+        <a href="{% url 'main:basket' %}" class="block px-4 py-2 text-white hover:text-pink-500">Go to Basket</a>
+        <a href="{% url 'main:logout' %}" class="block px-4 py-2 text-white hover:text-pink-500">Logout</a>
+    </div>
+  </nav>
+  
+  <!-- Script to Toggle Mobile Menu -->
+  <script>
+    const menuBtn = document.getElementById('menu-btn');
+    const mobileMenu = document.getElementById('mobile-menu');
+  
+    menuBtn.addEventListener('click', () => {
+        mobileMenu.classList.toggle('hidden');
+    });
+  </script>
+
+    <!-- Product Edit Form Section -->
+    <section id="product-entry" class="py-12 bg-black pt-32">
+        <div class="container mx-auto max-w-2xl">
+            <h2 class="text-4xl font-bold text-center text-white mb-8">Edit Product</h2>
+            
+            <form method="POST" enctype="multipart/form-data">
+              {% csrf_token %}
+              {{ form.as_p }}
+              <button type="submit" class="bg-pink-500 hover:bg-pink-700 text-white font-bold py-2 px-4 rounded w-full">
+                Save Changes
+              </button>
+            </form>
+        </div>
+    </section>
+
+</body>
+</html>
+{% endblock content %}

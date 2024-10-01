@@ -1,53 +1,104 @@
 {% extends 'base.html' %}
+{% load static %} 
 {% block content %}
 <html lang="en">
 <head>
-    <h1>Stratified</h1>
-    <p>A PBP project by {{name}} - {{class}}</p>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stratified</title>
+    <!-- TailwindCSS CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.0.1/dist/tailwind.min.css" rel="stylesheet">
 </head>
-<!-- <body>
-    <h2>Product</h2>
-    <h3>{{name}}</h3>
-    <img src={{image}} alt="image" width="300" height="300">
-    <h3>Rp.{{price}},00</h3>
-    <p>{{description}}</p>
-</body> -->
 
-<h3>Welcome, {{uname}}</h3>
+<body class="bg-black text-white">
 
-{% if not product_entry %}
-<p>No product has been added.</p>
-{% else %}
-<table>
-    <tr>
-      <th>Item Name</th>
-      <th>Price</th>
-      <th>Description</th>
-    </tr>
-  
-    {% comment %} Berikut cara memperlihatkan data product di bawah baris ini 
-    {% endcomment %} 
-    {% for product in product_entry %}
-    <tr>
-      <td>{{product.name}}</td>
-      <td>{{product.price}}</td>
-      <td>{{product.description}}</td>
-    </tr>
-    {% endfor %}
-  </table>
+    <!-- Full-width Hero Section with Background Image -->
+    <section class="relative bg-cover bg-center h-screen" style="background-image: url('{% static 'image/product-image-placeholder.jpg' %}');">
+      <div class="absolute inset-0 bg-black bg-opacity-50"></div>
+      <div class="relative z-10 flex flex-col items-center justify-center h-full text-center text-white">
+          <h1 class="text-5xl font-bold mb-4">STRATIFIED</h1>
+          <p class="text-3xl mb-8">A PBP PROJECT BY {{name}} - {{class}}</p>
+          <a href="#products-section" class="bg-pink-500 hover:bg-pink-700 text-white font-bold py-4 px-8 rounded-full">View Products</a>
+      </div>
+  </section>
+
+  <!-- Sticky Navigation Bar -->
+<nav class="bg-transparent py-4 fixed top-0 w-full z-50 shadow-lg">
+  <div class="container mx-auto flex justify-between items-center">
+      <!-- Logo or Brand -->
+      <div class="text-white text-lg">
+          <a href="" class="hover:text-pink-500 font-bold">STRATIFIED</a>
+      </div>
+      
+      <!-- Desktop Menu -->
+      <div class="hidden md:flex space-x-6 text-white">
+          <a href="{% url 'main:show_main' %}" class="hover:text-pink-500">Home</a>
+          <a href="{% url 'main:create_product_entry' %}" class="hover:text-pink-500">Add New Product</a>
+          <a href="{% url 'main:basket' %}" class="hover:text-pink-500">Go to Basket</a>
+          <a href="{% url 'main:logout' %}" class="hover:text-pink-500">Logout</a>
+      </div>
+      <div class="text-white text-lg">
+        <span>Welcome, {{ uname }}!</span>
+    </div>
+
+      <!-- Mobile Menu Button -->
+      <div class="md:hidden">
+          <button id="menu-btn" class="focus:outline-none">
+              <!-- Hamburger Icon -->
+              <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path>
+              </svg>
+          </button>
+      </div>
+  </div>
+
+  <!-- Mobile Menu (Hidden by default) -->
+  <div id="mobile-menu" class="hidden md:hidden bg-transparent ">
+      <a href="{% url 'main:show_main' %}" class="block px-4 py-2 text-white hover:text-pink-500">Home</a>
+      <a href="{% url 'main:create_product_entry' %}" class="block px-4 py-2 text-white hover:text-pink-500">Add New Product</a>
+      <a href="{% url 'main:basket' %}" class="block px-4 py-2 text-white hover:text-pink-500">Go to Basket</a>
+      <a href="{% url 'main:logout' %}" class="block px-4 py-2 text-white hover:text-pink-500">Logout</a>
+  </div>
+</nav>
+
+<!-- Script to Toggle Mobile Menu -->
+<script>
+  const menuBtn = document.getElementById('menu-btn');
+  const mobileMenu = document.getElementById('mobile-menu');
+
+  menuBtn.addEventListener('click', () => {
+      mobileMenu.classList.toggle('hidden');
+  });
+</script>
+
+<div class="container mx-auto pt-16"> <!-- Adjust the padding if you need more spacing below navbar -->
+  {% if messages %}
+      <div class="p-4 mb-4 text-sm text-green-700 bg-green-100 rounded-lg" role="alert">
+          {% for message in messages %}
+              {{ message }}
+          {% endfor %}
+      </div>
   {% endif %}
-  
-  <br />
-  
-  <a href="{% url 'main:create_product_entry' %}">
-    <button>Add New Product</button>
-  </a>
 
-  <a href="{% url 'main:logout' %}">
-    <button>Logout</button>
-  </a>
+    <!-- Product Display Section -->
+    <section id="products-section" class="py-12 bg-black pt-32">
+        <div class="container mx-auto">
+            <h2 class="text-4xl font-bold text-center text-white mb-12">Our Latest Products</h2>
+            
+            {% if not product_entry %}
+            <img src="{% static 'image/no-products-placehold.jpg' %}" alt="No Products" class="mx-auto h-64 w-auto">
+            <p class="text-center text-white">No products have been added yet.</p>
+            {% else %}
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+                {% for product in product_entry %}
+                <!-- Include the product card template here -->
+                {% include 'product_card.html' %}
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+    </section>
 
-<h5>Last login session: {{ last_login }}</h5>
-
+</body>
 </html>
 {% endblock content %}

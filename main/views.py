@@ -1,8 +1,8 @@
 from django.shortcuts import render
-from django.shortcuts import render, redirect 
+from django.shortcuts import render, redirect, reverse
 from main.models import Product
 from main.forms import ProductEntryForm
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from django.core import serializers
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib import messages
@@ -13,6 +13,11 @@ from django.contrib.auth.decorators import login_required
 import datetime
 from django.http import HttpResponseRedirect
 from django.urls import reverse
+from django.shortcuts import render
+from .models import Basket
+from django.shortcuts import render, redirect, get_object_or_404
+from .models import Product, Basket
+
 
 # Create your views here.
 
@@ -20,35 +25,24 @@ from django.urls import reverse
 def show_main(request): 
     product_entry = Product.objects.filter(user=request.user)
     context = {
-        'name': 'Muhammad Dzikri Ilmansyah',
+        'name': 'MUHAMMAD DZIKRI ILMANSYAH',
         'class': 'PBP C',
         'uname' : request.user.username,
-        # 'p_name' : 'Desmond Regamaster Evo II Forged Alloy Wheel',
-        # 'p_price' : '25.000.000',
-        # 'p_description' : '19x9 ET45 5x100 Almighty Grey',
         'product_entry' : product_entry,
         'last_login' : request.COOKIES['last_login'],
     }
     return render(request, "main.html", context)
 
-
-# def product_entry(request):
-#     product_entry = Product.objects.all()
-#     context = {
-#         'name' : 'Desmond Regamaster Evo II Forged Alloy Wheel',
-#         'price' : '25.000.000',
-#         'description' : '19x9 ET45 5x100 Almighty Grey',
-#     }
-#     return render(request, 'product_entry.html', context)
-
 def create_product_entry(request):
-    form = ProductEntryForm(request.POST or None)
-
-    if form.is_valid() and request.method == "POST":
-        product_entry = form.save(commit=False)
-        product_entry.user = request.user
-        product_entry.save()
-        return redirect('main:show_main')
+    if request.method == 'POST':
+        form = ProductEntryForm(request.POST, request.FILES)  # Add request.FILES to handle image upload
+        if form.is_valid():
+            product_entry = form.save(commit=False)
+            product_entry.user = request.user
+            product_entry.save()
+            return redirect('main:show_main')
+    else:
+        form = ProductEntryForm()
 
     context = {'form': form}
     return render(request, "create_product_entry.html", context)
@@ -102,3 +96,79 @@ def logout_user(request):
     response = HttpResponseRedirect(reverse('main:login'))
     response.delete_cookie('last_login')
     return response
+
+def edit_product(request, id):
+    # Get mood entry berdasarkan id
+    mood = Product.objects.get(pk = id)
+
+    # Set mood entry sebagai instance dari form
+    form = ProductEntryForm(request.POST or None, instance=mood)
+
+    if form.is_valid() and request.method == "POST":
+        # Simpan form dan kembali ke halaman awal
+        form.save()
+        return HttpResponseRedirect(reverse('main:show_main'))
+
+    context = {'form': form}
+    return render(request, "edit_product.html", context)
+
+def delete_product(request, id):
+    # Get mood berdasarkan id
+    mood = Product.objects.get(pk = id)
+    # Hapus mood
+    mood.delete()
+    # Kembali ke halaman awal
+    return HttpResponseRedirect(reverse('main:show_main'))
+
+def basket_view(request):
+    # Get all basket items for the logged-in user
+    basket_items = Basket.objects.filter(user=request.user)
+
+    # Calculate total price of all items in the basket
+    total_price = sum(item.get_total_price() for item in basket_items)
+
+    context = {
+        'basket_items': basket_items,
+        'total_price': total_price,
+    }
+    return render(request, 'basket.html', context)
+
+def add_to_basket(request, product_id):
+    # Get the product to be added to the basket
+    product = get_object_or_404(Product, id=product_id)
+
+    if request.method == "POST":
+        # Get the quantity from the form
+        quantity = int(request.POST.get('quantity', 1))
+
+        # Check if the product is already in the user's basket
+        basket_item, created = Basket.objects.get_or_create(user=request.user, product=product)
+
+        # If the product already exists in the basket, update the quantity
+        if not created:
+            basket_item.quantity += quantity
+        else:
+            basket_item.quantity = quantity
+        
+        basket_item.save()
+        messages.success(request, 'Product added to the basket!')
+
+        return redirect('main:show_main')
+
+def remove_from_basket(request, product_id):
+    # Get the basket item for the current user and product
+    basket_item = get_object_or_404(Basket, user=request.user, product__id=product_id)
+
+    if request.method == "POST":
+        # Get the quantity to remove from the form
+        quantity_to_remove = int(request.POST.get('quantity', 1))
+
+        # If quantity after removal is less than or equal to 0, remove the product from the basket
+        if basket_item.quantity - quantity_to_remove <= 0:
+            basket_item.delete()
+        else:
+            # Otherwise, just reduce the quantity
+            basket_item.quantity -= quantity_to_remove
+            basket_item.save()
+
+    return redirect('main:basket')

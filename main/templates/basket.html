@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Basket</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.0.1/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-black text-white">
+    
+      <!-- Sticky Navigation Bar -->
+<nav class="bg-transparent py-4 fixed top-0 w-full z-50 shadow-lg">
+    <div class="container mx-auto flex justify-between items-center">
+        <!-- Logo or Brand -->
+        <div class="text-white text-lg">
+            <a href="" class="hover:text-pink-500 font-bold">STRATIFIED</a>
+        </div>
+        
+        <!-- Desktop Menu -->
+        <div class="hidden md:flex space-x-6 text-white">
+            <a href="{% url 'main:show_main' %}" class="hover:text-pink-500">Home</a>
+            <a href="{% url 'main:create_product_entry' %}" class="hover:text-pink-500">Add New Product</a>
+            <a href="{% url 'main:basket' %}" class="hover:text-pink-500">Go to Basket</a>
+            <a href="{% url 'main:logout' %}" class="hover:text-pink-500">Logout</a>
+        </div>
+  
+        <!-- Mobile Menu Button -->
+        <div class="md:hidden">
+            <button id="menu-btn" class="focus:outline-none">
+                <!-- Hamburger Icon -->
+                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path>
+                </svg>
+            </button>
+        </div>
+    </div>
+  
+    <!-- Mobile Menu (Hidden by default) -->
+    <div id="mobile-menu" class="hidden md:hidden bg-transparent ">
+        <a href="{% url 'main:show_main' %}" class="block px-4 py-2 text-white hover:text-pink-500">Home</a>
+        <a href="{% url 'main:create_product_entry' %}" class="block px-4 py-2 text-white hover:text-pink-500">Add New Product</a>
+        <a href="{% url 'main:basket' %}" class="block px-4 py-2 text-white hover:text-pink-500">Go to Basket</a>
+        <a href="{% url 'main:logout' %}" class="block px-4 py-2 text-white hover:text-pink-500">Logout</a>
+    </div>
+  </nav>
+  
+  <!-- Script to Toggle Mobile Menu -->
+  <script>
+    const menuBtn = document.getElementById('menu-btn');
+    const mobileMenu = document.getElementById('mobile-menu');
+  
+    menuBtn.addEventListener('click', () => {
+        mobileMenu.classList.toggle('hidden');
+    });
+  </script>
+
+    <!-- Basket Content Section -->
+    <div class="container mx-auto py-24"> <!-- Adjusted for navbar height -->
+        <h1 class="text-5xl font-bold mb-8 text-center">Your Basket</h1>
+
+        <div class="bg-gray-800 shadow-md rounded-lg p-6">
+            <table class="min-w-full table-auto text-white">
+                <thead>
+                    <tr>
+                        <th class="px-4 py-2 text-left">Product</th>
+                        <th class="px-4 py-2 text-left">Price</th>
+                        <th class="px-4 py-2 text-left">Quantity</th>
+                        <th class="px-4 py-2 text-left">Total</th>
+                        <th class="px-4 py-2 text-left">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in basket_items %}
+                    <tr class="border-b border-gray-700">
+                        <td class="border px-4 py-2">{{ item.product.name }}</td>
+                        <td class="border px-4 py-2">Rp {{ item.product.price }}</td>
+                        <td class="border px-4 py-2">{{ item.quantity }}</td>
+                        <td class="border px-4 py-2">Rp {{ item.get_total_price }}</td>
+                        <td class="border px-4 py-2">
+                            <!-- Remove from Basket Form with Quantity Input -->
+                            <form action="{% url 'main:remove_from_basket' item.product.id %}" method="POST">
+                                {% csrf_token %}
+                                <label for="quantity_{{ item.product.pk }}">Remove Quantity: </label>
+                                <input type="number" id="quantity_{{ item.product.pk }}" name="quantity" value="1" min="1" class="border px-2 py-1 rounded bg-gray-700 text-white">
+                                <button type="submit" class="bg-red-500 hover:bg-red-700 text-white px-2 py-1 rounded">Remove</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <div class="mt-8">
+                <h2 class="text-2xl font-bold text-right">Total Price: Rp {{ total_price }}</h2>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,28 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom Styles */
+body, h1, h2, h3, p, a, div {
+    font-family: 'Roboto Mono', monospace;
+}
+
+input[type="text"],
+input[type="password"],
+textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #444;
+    border-radius: 20px;  /* Rounded corners */
+    background-color: #111;  /* Dark background */
+    color: #f0f0f0;  /* White text */
+    outline: none;
+    font-size: 16px;
+    transition: border-color 0.3s ease-in-out;
+}
+
+input[type="text"]:focus,
+input[type="password"]:focus,
+textarea:focus {
+    border-color: #f64c72; /* Highlight border on focus */
+}

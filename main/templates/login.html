@@ -1,32 +1,97 @@
 {% extends 'base.html' %}
 
-{% block meta %}
-<title>Login</title>
-{% endblock meta %}
-
 {% block content %}
-<div class="login">
-  <h1>Login</h1>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stratified</title>
+    <!-- TailwindCSS CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.0.1/dist/tailwind.min.css" rel="stylesheet">
+    
+    <!-- Custom Styling -->
+    <style>
+        input[type="text"],
+        input[type="password"],
+        textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #444;
+            border-radius: 20px;  /* Rounded corners */
+            background-color: #111;  /* Dark background */
+            color: #f0f0f0;  /* White text */
+            outline: none;
+            font-size: 16px;
+            transition: border-color 0.3s ease-in-out;
+        }
 
-  <form method="POST" action="">
-    {% csrf_token %}
-    <table>
-      {{ form.as_table }}
-      <tr>
-        <td></td>
-        <td><input class="btn login_btn" type="submit" value="Login" /></td>
-      </tr>
-    </table>
-  </form>
+        input[type="text"]:focus,
+        input[type="password"]:focus,
+        textarea:focus {
+            border-color: #f64c72; /* Highlight border on focus */
+        }
 
-  {% if messages %}
-  <ul>
-    {% for message in messages %}
-    <li>{{ message }}</li>
-    {% endfor %}
-  </ul>
-  {% endif %} Don't have an account yet?
-  <a href="{% url 'main:register' %}">Register Now</a>
-</div>
+        /* Checkbox styling */
+        input[type="checkbox"] {
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border: 1px solid #444;
+            border-radius: 4px;
+            background-color: #111;
+            position: relative;
+            outline: none;
+        }
 
+        input[type="checkbox"]:checked {
+            background-color: #f64c72;
+            border-color: #f64c72;
+        }
+    </style>
+</head>
+<body class="bg-black text-white">
+
+    <!-- Login Container -->
+    <div class="flex items-center justify-center min-h-screen bg-black">
+      <div class="bg-[#1c1c1c] p-8 rounded-lg shadow-lg w-full max-w-md">
+          <h1 class="text-4xl font-bold text-center tracking-wider mb-8 text-white">Stratified</h1>
+          
+          <!-- Login Form -->
+          <form method="POST" class="space-y-6">
+              {% csrf_token %}
+              
+              <div>
+                  <label for="username" class="block text-sm font-medium text-gray-400">Username</label>
+                  {{ form.username }}
+              </div>
+              
+              <div>
+                  <label for="password" class="block text-sm font-medium text-gray-400">Password</label>
+                  {{ form.password }}
+              </div>
+              
+              <!-- Submit Button -->
+              <button type="submit" class="bg-pink-500 text-white w-full py-2 px-4 rounded-lg hover:bg-pink-700 transition duration-300 mt-4">
+                  Log In
+              </button>
+          </form>
+
+          <!-- Register Link -->
+          <div class="text-center mt-6">
+              <p class="text-gray-400">Don’t have an account?</p>
+              <a href="{% url 'main:register' %}" class="text-pink-500 hover:text-pink-300 transition duration-300">
+                  Register Now
+              </a>
+          </div>
+
+          <!-- Last login info -->
+          {% if last_login %}
+          <div class="text-center mt-4">
+              <p class="text-gray-500">Last login session: {{ last_login }}</p>
+          </div>
+          {% endif %}
+      </div>
+    </div>
+</body>
+</html>
 {% endblock content %}
