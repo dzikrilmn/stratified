@@ -1,4 +1,4 @@
-# Tugas 2
+      # Tugas 2
 
 1. step 1 : membuat project django baru dilakukan dengan membuat direktori lokal dan mengaktifkan virtual environment
    step 2 : menjalankan python manage.py startapp main pada direktori utama untuk membuat app main
@@ -715,11 +715,162 @@
       </nav>
       ```
 
+# Tugas 6
 
+1.  JavaScript memiliki beberapa manfaat penting dalam pengembangan aplikasi web:
 
+      a. Interaktivitas: JavaScript memungkinkan pembuatan elemen interaktif pada halaman web, seperti formulir yang responsif, animasi, dan pembaruan konten dinamis tanpa perlu me-refresh halaman.
+      b. Manipulasi DOM: Dengan JavaScript, developer dapat memanipulasi struktur, konten, dan gaya elemen HTML secara dinamis, memungkinkan perubahan tampilan dan perilaku halaman web secara real-time.
+      c. Asynchronous Programming: JavaScript mendukung pemrograman asinkron, memungkinkan aplikasi web untuk melakukan operasi tanpa menghentikan eksekusi kode lainnya, meningkatkan kinerja dan responsivitas aplikasi.
+      d. Client-side Validation: JavaScript dapat melakukan validasi data di sisi klien sebelum dikirim ke server, mengurangi beban server dan meningkatkan pengalaman pengguna.
+      e. Single Page Applications (SPA): JavaScript memungkinkan pengembangan SPA yang memberikan pengalaman seperti aplikasi desktop dalam browser web.
+      f. Rich User Interfaces: Dengan JavaScript dan berbagai library/framework-nya (seperti React, Vue, Angular), developer dapat membuat antarmuka pengguna yang kaya dan kompleks.
+      g. Cross-platform Development: Dengan teknologi seperti Electron atau React Native, JavaScript memungkinkan pengembangan aplikasi lintas platform untuk desktop dan mobile menggunakan kode web.
+      h. Server-side Programming: Dengan Node.js, JavaScript dapat digunakan untuk pengembangan server-side, memungkinkan penggunaan satu bahasa untuk full-stack development.
 
+2. Fungsi penggunaan `await` dengan `fetch()`:
 
+      - `await` digunakan untuk menunggu hasil dari operasi asynchronous `fetch()` sebelum melanjutkan eksekusi kode.
+      - Memastikan data yang diambil sudah tersedia sebelum diproses lebih lanjut.
+      - Membuat kode asynchronous terlihat lebih seperti kode synchronous, meningkatkan keterbacaan.
 
+      Jika tidak menggunakan `await`:
 
+      - Kode akan terus berjalan tanpa menunggu `fetch()` selesai.
+      - Variabel yang menyimpan hasil `fetch()` akan berisi Promise, bukan data yang diinginkan.
+      - Dapat menyebabkan error jika mencoba mengakses data sebelum tersedia.
+      - Memerlukan penggunaan `.then()` chains atau callback, yang bisa membuat kode lebih sulit dibaca (callback hell).
 
+3. Mengapa kita perlu menggunakan decorator csrf_exempt pada view yang akan digunakan untuk AJAX POST?
 
+   - `csrf_exempt` digunakan untuk mengabaikan CSRF protection pada view tertentu.
+   - Diperlukan untuk AJAX POST karena:
+     - AJAX request sering tidak menyertakan CSRF token.
+     - Memudahkan testing dan development API.
+   - Namun, penggunaannya harus hati-hati karena mengurangi keamanan.
+
+4. Pada tutorial PBP minggu ini, pembersihan data input pengguna dilakukan di belakang (backend) juga. Mengapa hal tersebut tidak dilakukan di frontend saja?
+
+   - Keamanan ganda: Frontend validation bisa dibypass, backend validation lebih aman.
+   - Konsistensi data: Memastikan data yang masuk ke database selalu bersih dan valid.
+   - Menangani berbagai sumber input: Backend bisa menangani input dari berbagai sumber, tidak hanya dari form web.
+   - Mencegah manipulasi client-side: User bisa memodifikasi validasi frontend, tapi tidak bisa memodifikasi backend.
+
+5. Jelaskan bagaimana cara kamu mengimplementasikan checklist di atas secara step-by-step (bukan hanya sekadar mengikuti tutorial)!
+
+   1. Mengubah card data item agar menggunakan AJAX GET:
+      - Buat fungsi JavaScript untuk fetch data dari server.
+      - Gunakan `async/await` untuk menangani respons.
+      - Update DOM dengan data yang diterima.
+
+      Contoh kode:
+      ```javascript
+      async function getProductEntries() {
+          const response = await fetch("/get-product-json/");
+          return await response.json();
+      }
+
+      async function refreshProducts() {
+          const products = await getProductEntries();
+          let productHTML = "";
+          products.forEach((product) => {
+              productHTML += `
+                  <div class="product-card">
+                      <h3>${product.name}</h3>
+                      <p>${product.description}</p>
+                      <p>Price: $${product.price}</p>
+                  </div>
+              `;
+          });
+          document.getElementById("product-container").innerHTML = productHTML;
+      }
+      ```
+
+   2. Membuat modal form untuk menambahkan item:
+      - Buat struktur HTML untuk modal.
+      - Styling dengan CSS/Tailwind.
+      - Tambahkan event listener untuk membuka/menutup modal.
+
+      Contoh kode HTML:
+      ```html
+      <div id="addProductModal" class="modal">
+          <div class="modal-content">
+              <span class="close">&times;</span>
+              <h2>Add New Product</h2>
+              <form id="addProductForm">
+                  <input type="text" id="productName" placeholder="Product Name" required>
+                  <input type="number" id="productPrice" placeholder="Price" required>
+                  <textarea id="productDescription" placeholder="Description" required></textarea>
+                  <button type="submit">Add Product</button>
+              </form>
+          </div>
+      </div>
+      ```
+
+   3. Membuat fungsi view baru untuk menambahkan item:
+      - Buat fungsi di `views.py` untuk handle POST request.
+      - Gunakan `csrf_exempt` jika diperlukan.
+      - Validasi dan simpan data ke database.
+
+      Contoh kode Python:
+      ```python
+      from django.http import JsonResponse
+      from django.views.decorators.csrf import csrf_exempt
+
+      @csrf_exempt
+      def add_product_ajax(request):
+          if request.method == 'POST':
+              name = request.POST.get("name")
+              price = request.POST.get("price")
+              description = request.POST.get("description")
+              product = Product(name=name, price=price, description=description)
+              product.save()
+              return JsonResponse({"status": "success"}, status=200)
+          return JsonResponse({"status": "error"}, status=401)
+      ```
+
+   4. Membuat path `/create-ajax/` yang mengarah ke fungsi view baru:
+      - Tambahkan URL pattern di `urls.py`.
+
+      Contoh kode:
+      ```python
+      from django.urls import path
+      from . import views
+
+      urlpatterns = [
+          # ... other paths
+          path('create-ajax/', views.add_product_ajax, name='add_product_ajax'),
+      ]
+      ```
+
+   5. Menghubungkan form modal ke path `/create-ajax/`:
+      - Gunakan AJAX POST di JavaScript untuk mengirim data form.
+      - Handle respons dari server dan update UI sesuai.
+
+      Contoh kode JavaScript:
+      ```javascript
+      document.getElementById("addProductForm").addEventListener("submit", async function(e) {
+          e.preventDefault();
+          const formData = new FormData(this);
+          const response = await fetch("/create-ajax/", {
+              method: "POST",
+              body: formData
+          });
+          const data = await response.json();
+          if (data.status === "success") {
+              closeModal();
+              refreshProducts();
+          }
+      });
+      ```
+
+   6. Melakukan refresh pada halaman utama secara asinkronus:
+      - Buat fungsi untuk me-refresh data tanpa reload halaman.
+      - Panggil fungsi ini setelah berhasil menambah item baru.
+
+      Contoh kode (sudah termasuk dalam langkah 5):
+      ```javascript
+      function refreshProducts() {
+          // ... (kode dari langkah 1)
+      }
+      ```

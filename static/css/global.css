@@ -1,6 +1,6 @@
-@tailwind base;
+/* @tailwind base;
 @tailwind components;
-@tailwind utilities;
+@tailwind utilities; */
 
 /* Custom Styles */
 body, h1, h2, h3, p, a, div {
@@ -26,3 +26,4 @@ input[type="password"]:focus,
 textarea:focus {
     border-color: #f64c72; /* Highlight border on focus */
 }
+

@@ -17,18 +17,23 @@ from django.shortcuts import render
 from .models import Basket
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import Product, Basket
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
+from django.http import JsonResponse
+from django.views.decorators.http import require_POST
+from django.shortcuts import get_object_or_404
 
 
 # Create your views here.
 
 @login_required(login_url='/login')
 def show_main(request): 
-    product_entry = Product.objects.filter(user=request.user)
+
     context = {
         'name': 'MUHAMMAD DZIKRI ILMANSYAH',
         'class': 'PBP C',
         'uname' : request.user.username,
-        'product_entry' : product_entry,
+
         'last_login' : request.COOKIES['last_login'],
     }
     return render(request, "main.html", context)
@@ -48,7 +53,7 @@ def create_product_entry(request):
     return render(request, "create_product_entry.html", context)
 
 def show_xml(request):
-    data = Product.objects.all()
+    data = Product.objects.filter(user=request.user)
     return HttpResponse(serializers.serialize("xml", data), content_type="application/xml")
 
 def show_xml_by_id(request, id):
@@ -56,7 +61,7 @@ def show_xml_by_id(request, id):
     return HttpResponse(serializers.serialize("xml", data), content_type="application/xml")
 
 def show_json(request):
-    data = Product.objects.all()
+    data = Product.objects.filter(user=request.user)
     return HttpResponse(serializers.serialize("json", data), content_type="application/json")
 
 def show_json_by_id(request, id):
@@ -85,6 +90,8 @@ def login_user(request):
         response = HttpResponseRedirect(reverse("main:show_main"))
         response.set_cookie('last_login', str(datetime.datetime.now()))
         return response
+      else:
+        messages.error(request, "Invalid username or password. Please try again.")
 
    else:
       form = AuthenticationForm(request)
@@ -98,27 +105,23 @@ def logout_user(request):
     return response
 
 def edit_product(request, id):
-    # Get mood entry berdasarkan id
-    mood = Product.objects.get(pk = id)
+    product = get_object_or_404(Product, pk=id, user=request.user)
+    
+    if request.method == "POST":
+        form = ProductEntryForm(request.POST, request.FILES, instance=product)
+        if form.is_valid():
+            form.save()
+            return redirect('main:show_main')
+    else:
+        form = ProductEntryForm(instance=product)
 
-    # Set mood entry sebagai instance dari form
-    form = ProductEntryForm(request.POST or None, instance=mood)
-
-    if form.is_valid() and request.method == "POST":
-        # Simpan form dan kembali ke halaman awal
-        form.save()
-        return HttpResponseRedirect(reverse('main:show_main'))
-
-    context = {'form': form}
+    context = {'form': form, 'product': product}
     return render(request, "edit_product.html", context)
 
 def delete_product(request, id):
-    # Get mood berdasarkan id
-    mood = Product.objects.get(pk = id)
-    # Hapus mood
-    mood.delete()
-    # Kembali ke halaman awal
-    return HttpResponseRedirect(reverse('main:show_main'))
+    product = get_object_or_404(Product, pk=id, user=request.user)
+    product.delete()
+    return JsonResponse({'status': 'success'})
 
 def basket_view(request):
     # Get all basket items for the logged-in user
@@ -133,27 +136,20 @@ def basket_view(request):
     }
     return render(request, 'basket.html', context)
 
+@require_POST
 def add_to_basket(request, product_id):
-    # Get the product to be added to the basket
-    product = get_object_or_404(Product, id=product_id)
+    product = get_object_or_404(Product, pk=product_id)
+    quantity = int(request.POST.get('quantity', 1))
 
-    if request.method == "POST":
-        # Get the quantity from the form
-        quantity = int(request.POST.get('quantity', 1))
-
-        # Check if the product is already in the user's basket
-        basket_item, created = Basket.objects.get_or_create(user=request.user, product=product)
-
-        # If the product already exists in the basket, update the quantity
-        if not created:
-            basket_item.quantity += quantity
-        else:
-            basket_item.quantity = quantity
-        
-        basket_item.save()
-        messages.success(request, 'Product added to the basket!')
-
-        return redirect('main:show_main')
+    basket_item, created = Basket.objects.get_or_create(user=request.user, product=product)
+    
+    if not created:
+        basket_item.quantity += quantity
+    else:
+        basket_item.quantity = quantity
+    
+    basket_item.save()
+    return JsonResponse({'status': 'success'})
 
 def remove_from_basket(request, product_id):
     # Get the basket item for the current user and product
@@ -172,3 +168,27 @@ def remove_from_basket(request, product_id):
             basket_item.save()
 
     return redirect('main:basket')
+
+@csrf_exempt
+@require_POST
+def add_product_ajax(request):
+    name = request.POST.get("name")
+    price = request.POST.get("price")
+    description = request.POST.get("description")
+    user = request.user
+    image = request.FILES.get("image")
+
+    new_product = Product(
+        name=name,
+        price=price,
+        description=description,
+        image=image,
+        user=user
+    )
+    new_product.save()
+
+    return JsonResponse({"status": "success", "message": "Product added successfully"}, status=201)
+
+def get_product_json(request):
+    products = Product.objects.filter(user=request.user)
+    return JsonResponse(list(products.values()), safe=False)
